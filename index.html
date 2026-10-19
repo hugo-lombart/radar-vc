@@ -4,28 +4,38 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Radar VC</title>
-<meta name="description" content="Veille VC : actus, levées de fonds et signaux faibles, mis à jour automatiquement.">
+<meta name="description" content="Veille VC mondiale : levées de fonds, carte, tendances et signaux faibles, mis à jour automatiquement.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
 <style>
 :root{
+  color-scheme:light;
   --bg:#f4f2ec; --panel:#ffffff; --panel-2:#faf9f5; --ink:#17161a; --muted:#6b6873; --line:#e3e0d8;
-  --accent:#0f8a5f; --accent-soft:#dcf2e8; --hot:#e0522b; --hot-soft:#fbe5dc; --gold:#b9850b; --gold-soft:#f7ecd0;
+  --accent:#0f8a5f; --accent-soft:#dcf2e8; --hot:#e0522b; --hot-soft:#fbe5dc; --gold:#9a6d06; --gold-soft:#f7ecd0;
   --violet:#5b4bd6; --violet-soft:#e8e5fb; --shadow:0 1px 0 rgba(0,0,0,.03),0 8px 24px -16px rgba(20,20,30,.18);
   --radius:14px; --mono:"JetBrains Mono",ui-monospace,monospace; --display:"Bricolage Grotesque",Inter,sans-serif;
+  --s1:#2a78d6; --s2:#eb6834; --s3:#1baf7a; --s4:#eda100; --s5:#e87ba4; --s6:#008300; --s7:#6250d6; --s8:#e34948; --other:#b4b2a9;
+  --map-empty:#e6e3da; --map-line:#ffffff; --up:#0f7a3f; --down:#c73a3a; --grid:#ebe8e0;
 }
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
-  --bg:#0f1114; --panel:#171a1f; --panel-2:#1c2026; --ink:#ecebe6; --muted:#9a98a2; --line:#2a2e36;
+  color-scheme:dark;
+  --bg:#0f1114; --panel:#171a1f; --panel-2:#1c2026; --ink:#ecebe6; --muted:#a3a1ab; --line:#2a2e36;
   --accent:#3ddc97; --accent-soft:#16352a; --hot:#ff7a50; --hot-soft:#3a2119; --gold:#f2c14e; --gold-soft:#352c14;
-  --violet:#a79bff; --violet-soft:#26224a; --shadow:none;}}
+  --violet:#a79bff; --violet-soft:#26224a; --shadow:none;
+  --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500; --s5:#d55181; --s6:#008300; --s7:#9085e9; --s8:#e66767; --other:#5f5e5a;
+  --map-empty:#252a32; --map-line:#0f1114; --up:#3ddc97; --down:#ff7a7a; --grid:#242830;}}
 :root[data-theme="dark"]{
-  --bg:#0f1114; --panel:#171a1f; --panel-2:#1c2026; --ink:#ecebe6; --muted:#9a98a2; --line:#2a2e36;
+  color-scheme:dark;
+  --bg:#0f1114; --panel:#171a1f; --panel-2:#1c2026; --ink:#ecebe6; --muted:#a3a1ab; --line:#2a2e36;
   --accent:#3ddc97; --accent-soft:#16352a; --hot:#ff7a50; --hot-soft:#3a2119; --gold:#f2c14e; --gold-soft:#352c14;
-  --violet:#a79bff; --violet-soft:#26224a; --shadow:none;}
+  --violet:#a79bff; --violet-soft:#26224a; --shadow:none;
+  --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500; --s5:#d55181; --s6:#008300; --s7:#9085e9; --s8:#e66767; --other:#5f5e5a;
+  --map-empty:#252a32; --map-line:#0f1114; --up:#3ddc97; --down:#ff7a7a; --grid:#242830;}
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.55 Inter,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
 a{color:inherit}
-.wrap{max-width:1180px;margin:0 auto;padding:0 20px 60px}
+button{font-family:inherit}
+.wrap{max-width:1280px;margin:0 auto;padding:0 20px 60px}
 header{display:flex;align-items:center;gap:16px;padding:26px 0 18px;flex-wrap:wrap}
 .logo{width:46px;height:46px;flex:none}
 .sweep{transform-origin:24px 24px;animation:spin 4s linear infinite}
@@ -38,21 +48,28 @@ h1{font:700 30px/1 var(--display);margin:0;letter-spacing:-.02em}
 .spacer{flex:1}
 .btn{border:1px solid var(--line);background:var(--panel);color:var(--ink);border-radius:999px;padding:8px 14px;font:500 13px Inter,sans-serif;cursor:pointer}
 .btn:hover{border-color:var(--muted)}
-nav{display:flex;gap:4px;border-bottom:1px solid var(--line);margin-bottom:22px;overflow-x:auto}
-nav button{background:none;border:0;padding:12px 14px;font:600 14px Inter,sans-serif;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap}
-nav button.on{color:var(--ink);border-color:var(--ink)}
-nav .n{font:500 11px var(--mono);background:var(--panel-2);border:1px solid var(--line);border-radius:999px;padding:1px 7px;margin-left:6px}
+.btn.small{padding:5px 10px;font-size:12px}
+nav#tabs{display:flex;gap:2px;border-bottom:1px solid var(--line);margin-bottom:18px;overflow-x:auto;scrollbar-width:none}
+nav#tabs button{background:none;border:0;padding:12px 13px;font:600 14px Inter,sans-serif;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap}
+nav#tabs button.on{color:var(--ink);border-color:var(--ink)}
+nav#tabs .n{font:500 11px var(--mono);background:var(--panel-2);border:1px solid var(--line);border-radius:999px;padding:1px 7px;margin-left:6px}
+nav#tabs .newtab::after{content:"";display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--hot);margin-left:6px;vertical-align:middle}
 .grid{display:grid;gap:16px}
 .kpis{grid-template-columns:repeat(4,1fr)}
+.kpis.five{grid-template-columns:repeat(5,1fr)}
 .two{grid-template-columns:1.4fr 1fr}
-@media (max-width:860px){.kpis{grid-template-columns:repeat(2,1fr)}.two{grid-template-columns:1fr}.bar{grid-template-columns:105px 1fr 56px}}
-.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:18px;box-shadow:var(--shadow)}
+.two-even{grid-template-columns:1fr 1fr}
+.three{grid-template-columns:repeat(3,1fr)}
+@media (max-width:980px){.kpis.five{grid-template-columns:repeat(3,1fr)}.three{grid-template-columns:1fr 1fr}}
+@media (max-width:860px){.kpis,.kpis.five{grid-template-columns:repeat(2,1fr)}.two,.two-even,.three{grid-template-columns:1fr}.bar{grid-template-columns:105px 1fr 56px}}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:18px;box-shadow:var(--shadow);min-width:0}
 .card h2{font:700 17px var(--display);margin:0 0 4px;letter-spacing:-.01em}
 .card .hint{color:var(--muted);font-size:12.5px;margin:0 0 14px}
-.kpi .v{font:700 30px/1.1 var(--display);letter-spacing:-.02em}
+.card-head{display:flex;align-items:flex-start;gap:10px;justify-content:space-between;flex-wrap:wrap}
+.kpi .v{font:700 28px/1.1 var(--display);letter-spacing:-.02em}
 .kpi .l{color:var(--muted);font-size:12.5px}
-.kpi .d{font:500 12px var(--mono);margin-top:6px}
-.up{color:var(--accent)} .down{color:var(--hot)}
+.kpi .d{font:500 12px var(--mono);margin-top:6px;color:var(--muted)}
+.up{color:var(--up)} .down{color:var(--down)}
 .thermo{height:8px;border-radius:99px;background:linear-gradient(90deg,#4a90d9,#f2c14e,#e0522b);position:relative;margin:14px 0 6px}
 .thermo b{position:absolute;top:-5px;width:18px;height:18px;border-radius:50%;background:var(--panel);border:3px solid var(--ink);transform:translateX(-50%)}
 .row{display:flex;align-items:center;gap:10px}
@@ -61,10 +78,11 @@ nav .n{font:500 11px var(--mono);background:var(--panel-2);border:1px solid var(
 .rank{font:500 13px var(--mono);color:var(--muted)}
 .deal .t{font-weight:600;font-size:14px;text-decoration:none}
 .deal .t:hover{text-decoration:underline}
-.amt{font:500 14px var(--mono);background:var(--gold-soft);color:var(--gold);padding:3px 9px;border-radius:8px;white-space:nowrap}
+.amt{font:500 13.5px var(--mono);background:var(--gold-soft);color:var(--gold);padding:3px 9px;border-radius:8px;white-space:nowrap}
 .tag{display:inline-block;font-size:11.5px;font-weight:500;padding:2px 8px;border-radius:99px;background:var(--panel-2);border:1px solid var(--line);color:var(--muted);margin:2px 4px 0 0}
 .tag.round{background:var(--violet-soft);color:var(--violet);border-color:transparent}
 .tag.inv{background:var(--accent-soft);color:var(--accent);border-color:transparent}
+.tag.theme{background:var(--hot-soft);color:var(--hot);border-color:transparent}
 .tag.new{background:var(--hot);color:#fff;border-color:transparent}
 .bar{display:grid;grid-template-columns:140px 1fr 70px;gap:10px;align-items:center;font-size:13px;margin:7px 0}
 .bar .track{height:10px;background:var(--panel-2);border-radius:99px;overflow:hidden;position:relative}
@@ -72,9 +90,9 @@ nav .n{font:500 11px var(--mono);background:var(--panel-2);border:1px solid var(
 .bar .prev{position:absolute;top:0;height:100%;border-right:2px solid var(--hot)}
 .bar .num{font:500 12px var(--mono);text-align:right;color:var(--muted)}
 .filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;align-items:center}
-input[type=search],select{border:1px solid var(--line);background:var(--panel);color:var(--ink);border-radius:10px;padding:9px 12px;font:14px Inter,sans-serif}
-input[type=search]{flex:1;min-width:200px}
-.chip{border:1px solid var(--line);background:var(--panel);color:var(--muted);border-radius:99px;padding:7px 12px;font:500 13px Inter,sans-serif;cursor:pointer}
+input[type=search],input[type=date],select{border:1px solid var(--line);background:var(--panel);color:var(--ink);border-radius:10px;padding:8px 11px;font:14px Inter,sans-serif;min-width:0}
+input[type=search]{flex:1;min-width:180px}
+.chip{border:1px solid var(--line);background:var(--panel);color:var(--muted);border-radius:99px;padding:6px 12px;font:500 13px Inter,sans-serif;cursor:pointer;white-space:nowrap}
 .chip.on{background:var(--ink);color:var(--bg);border-color:var(--ink)}
 .feed{display:grid;gap:10px}
 .art{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 16px;display:grid;grid-template-columns:1fr auto;gap:6px 14px}
@@ -86,7 +104,7 @@ input[type=search]{flex:1;min-width:200px}
 .star{background:none;border:0;font-size:18px;cursor:pointer;color:var(--line);line-height:1;padding:0}
 .star.on{color:var(--gold)}
 table{width:100%;border-collapse:collapse;font-size:13.5px}
-th{text-align:left;font-weight:600;color:var(--muted);font-size:12px;padding:8px;border-bottom:1px solid var(--line)}
+th{text-align:left;font-weight:600;color:var(--muted);font-size:12px;padding:8px;border-bottom:1px solid var(--line);white-space:nowrap}
 td{padding:10px 8px;border-bottom:1px solid var(--line);vertical-align:top}
 td.mono{font-family:var(--mono);font-size:12.5px;white-space:nowrap}
 .pill{font-size:11px;font-weight:600;padding:2px 7px;border-radius:6px;white-space:nowrap}
@@ -104,6 +122,125 @@ td.mono{font-family:var(--mono);font-size:12.5px;white-space:nowrap}
 .list li{margin:6px 0}
 .list{padding-left:18px;margin:0}
 [hidden]{display:none!important}
+button.tag{font:500 11.5px/1.5 Inter,sans-serif}
+#f-toggle{display:none}
+@media (max-width:700px){
+  #fbar{position:static;margin:0 0 14px;padding:10px 0;background:none;backdrop-filter:none}
+  #fbar.collapsed .fb-row:not(.active-filters){display:none}
+  #f-toggle{display:inline-flex}
+  .range{min-width:0;width:100%;max-width:none}
+  .range output{min-width:0}
+  #fbar select,#fbar input[type=search]{flex:1 1 45%}
+  .scope-title h2{font-size:22px}
+}
+
+/* ---------- barre de filtres globale ---------- */
+#fbar{position:sticky;top:0;z-index:20;background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);margin:0 -20px 16px;padding:10px 20px 12px;border-bottom:1px solid var(--line)}
+.fb-row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.fb-row + .fb-row{margin-top:8px}
+.seg{display:inline-flex;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:3px;gap:2px;flex-wrap:wrap}
+.seg button{border:0;background:none;color:var(--muted);font:600 12.5px Inter,sans-serif;padding:6px 10px;border-radius:7px;cursor:pointer;white-space:nowrap}
+.seg button.on{background:var(--ink);color:var(--bg)}
+.fb-label{font-size:12px;color:var(--muted);font-weight:500}
+.range{display:flex;align-items:center;gap:10px;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:6px 12px;min-width:420px;flex:1;max-width:560px}
+.dual{position:relative;flex:1;height:26px;min-width:170px}
+.dual .rail{position:absolute;left:0;right:0;top:11px;height:4px;border-radius:4px;background:var(--line)}
+.dual .sel{position:absolute;top:11px;height:4px;border-radius:4px;background:var(--ink)}
+.dual input{position:absolute;inset:0;width:100%;margin:0;background:none;pointer-events:none;-webkit-appearance:none;appearance:none;height:26px}
+.dual input::-webkit-slider-thumb{-webkit-appearance:none;pointer-events:auto;width:18px;height:18px;border-radius:50%;background:var(--panel);border:3px solid var(--ink);cursor:grab}
+.dual input::-moz-range-thumb{pointer-events:auto;width:14px;height:14px;border-radius:50%;background:var(--panel);border:3px solid var(--ink);cursor:grab}
+.dual input::-webkit-slider-runnable-track{background:none}
+.dual input::-moz-range-track{background:none}
+.range output{font:500 12px var(--mono);white-space:nowrap;min-width:150px;text-align:right}
+.active-filters{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.fchip{display:inline-flex;align-items:center;gap:6px;background:var(--ink);color:var(--bg);border-radius:99px;padding:4px 6px 4px 11px;font-size:12px;font-weight:500}
+.fchip button{border:0;background:color-mix(in srgb,var(--bg) 20%,transparent);color:var(--bg);width:18px;height:18px;border-radius:50%;cursor:pointer;line-height:1;font-size:12px;padding:0}
+.linkbtn{background:none;border:0;color:var(--muted);text-decoration:underline;cursor:pointer;font-size:12.5px;padding:0}
+.toggle{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;color:var(--muted);cursor:pointer;user-select:none}
+.toggle input{accent-color:var(--ink)}
+
+/* ---------- carte ---------- */
+.map-wrap{position:relative}
+#map svg{display:block;width:100%;height:auto}
+#map .country{stroke:var(--map-line);stroke-width:.6;vector-effect:non-scaling-stroke;transition:opacity .2s}
+#map .country.known{cursor:pointer}
+#map .country.known:hover{stroke:var(--ink);stroke-width:1.4}
+#map .country.dim{opacity:.35}
+#map .country.sel{stroke:var(--ink);stroke-width:2}
+#map .dot{stroke:var(--map-line);stroke-width:1;vector-effect:non-scaling-stroke;cursor:pointer}
+.legend-grad{display:flex;align-items:center;gap:8px;font:500 11.5px var(--mono);color:var(--muted);margin-top:8px}
+.legend-grad .g{height:8px;border-radius:4px;flex:0 0 160px}
+.continents{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+.scope-title{display:flex;align-items:center;gap:12px;margin:22px 0 14px;flex-wrap:wrap}
+.scope-title h2{font:700 26px var(--display);margin:0;letter-spacing:-.02em}
+.scope-title .flag{font-size:30px;line-height:1}
+.crumbs{font-size:13px;color:var(--muted);display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.crumbs button{background:none;border:0;color:var(--muted);cursor:pointer;padding:0;text-decoration:underline;font-size:13px}
+
+/* ---------- graphiques ---------- */
+.chart{position:relative;width:100%}
+.chart svg{display:block;width:100%;overflow:visible}
+.chart .axis text{fill:var(--muted);font:11px Inter,sans-serif}
+.chart .axis path,.chart .axis line{stroke:var(--line)}
+.chart .gridline line{stroke:var(--grid)}
+.chart .gridline path{display:none}
+.chart .brush .selection{fill:var(--ink);fill-opacity:.08;stroke:var(--ink);stroke-opacity:.4}
+.legend{display:flex;flex-wrap:wrap;gap:6px 14px;margin-top:10px;font-size:12.5px}
+.legend .it{display:inline-flex;align-items:center;gap:6px;cursor:pointer;color:var(--ink);background:none;border:0;padding:2px 0;font-size:12.5px}
+.legend .it i{width:10px;height:10px;border-radius:3px;flex:none}
+.legend .it.off{opacity:.35}
+.legend .it b{font:500 11.5px var(--mono);color:var(--muted)}
+#tip{position:fixed;z-index:100;pointer-events:none;background:var(--panel);color:var(--ink);border:1px solid var(--line);border-radius:10px;padding:9px 11px;font-size:12.5px;box-shadow:0 10px 30px -10px rgba(0,0,0,.35);max-width:280px;opacity:0;transition:opacity .12s}
+#tip.on{opacity:1}
+#tip .tt{font-weight:600;margin-bottom:4px}
+#tip .tr{display:flex;justify-content:space-between;gap:14px;font-family:var(--mono);font-size:11.5px}
+#tip .tr i{display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:6px}
+.hbars{display:grid;gap:4px}
+.hb{display:grid;grid-template-columns:minmax(90px,150px) 1fr auto;gap:10px;align-items:center;font-size:13px;padding:4px 6px;border-radius:8px;cursor:pointer;background:none;border:0;color:var(--ink);text-align:left;width:100%}
+.hb:hover{background:var(--panel-2)}
+.hb.on{background:var(--panel-2);box-shadow:inset 3px 0 0 var(--ink)}
+.hb .lbl{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.hb .trk{display:block;height:10px;background:var(--panel-2);border-radius:5px;overflow:hidden}
+.hb .fl{display:block;height:100%;border-radius:5px}
+.hb .vv{font:500 12px var(--mono);color:var(--muted);text-align:right;white-space:nowrap}
+.donut-wrap{display:grid;grid-template-columns:170px 1fr;gap:16px;align-items:center}
+@media (max-width:520px){.donut-wrap{grid-template-columns:1fr}}
+.toplist .deal{grid-template-columns:30px 1fr auto;cursor:pointer}
+.toplist .deal:hover .t{text-decoration:underline}
+.dealbar{height:4px;border-radius:2px;background:var(--gold);opacity:.6;margin-top:6px}
+.growth{font:500 12px var(--mono);white-space:nowrap}
+table.data tbody tr{cursor:pointer}
+table.data tbody tr:hover{background:var(--panel-2)}
+table.data th button{background:none;border:0;color:inherit;font:inherit;cursor:pointer;padding:0}
+.pager{display:flex;gap:8px;align-items:center;justify-content:flex-end;margin-top:12px;font-size:12.5px;color:var(--muted)}
+
+/* ---------- tendances en vogue ---------- */
+.themes{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:14px}
+.theme{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:16px;cursor:pointer;text-align:left;color:var(--ink);display:flex;flex-direction:column;gap:6px;box-shadow:var(--shadow);transition:transform .15s,border-color .15s}
+.theme:hover{transform:translateY(-2px);border-color:var(--muted)}
+.theme h3{margin:0;font:700 16px var(--display)}
+.theme .nums{display:flex;gap:14px;font:500 12px var(--mono);color:var(--muted)}
+.badge{align-self:flex-start;font-size:11px;font-weight:600;padding:3px 8px;border-radius:99px}
+.badge.fire{background:var(--hot);color:#fff}
+.badge.upb{background:var(--accent-soft);color:var(--accent)}
+.badge.flat{background:var(--panel-2);color:var(--muted);border:1px solid var(--line)}
+.badge.downb{background:var(--panel-2);color:var(--down);border:1px solid var(--line)}
+.theme svg{width:100%;height:36px;display:block}
+
+/* ---------- fiche levée ---------- */
+dialog#deal{border:1px solid var(--line);border-radius:18px;background:var(--panel);color:var(--ink);padding:0;width:min(640px,94vw);max-height:88vh;box-shadow:0 30px 80px -20px rgba(0,0,0,.5)}
+dialog#deal::backdrop{background:rgba(10,10,15,.45)}
+.dlg-in{padding:22px 24px;overflow:auto;max-height:88vh}
+.dlg-top{display:flex;gap:12px;align-items:flex-start}
+.dlg-top h2{font:700 24px var(--display);margin:0;letter-spacing:-.02em;flex:1}
+.dlg-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:16px 0}
+.dlg-grid > div{background:var(--panel-2);border-radius:10px;padding:10px 12px}
+.dlg-grid small{display:block;color:var(--muted);font-size:11.5px}
+.dlg-grid strong{font:600 15px Inter,sans-serif}
+.conf{display:inline-flex;gap:3px;vertical-align:middle;margin-left:6px}
+.conf i{width:8px;height:8px;border-radius:2px;background:var(--line)}
+.conf i.on{background:var(--accent)}
+@media (max-width:520px){.dlg-grid{grid-template-columns:1fr 1fr}}
 </style>
 </head>
 <body>
@@ -118,7 +255,7 @@ td.mono{font-family:var(--mono);font-size:12.5px;white-space:nowrap}
     </svg>
     <div>
       <h1>Radar VC</h1>
-      <div class="sub"><span class="live"><i></i><span id="updated">Chargement…</span></span></div>
+      <div class="sub"><span class="live"><i></i><span id="updated">Chargement…</span></span> <span id="dbcount"></span></div>
     </div>
     <div class="spacer"></div>
     <button class="btn" id="theme" title="Changer de thème">Thème</button>
@@ -126,12 +263,48 @@ td.mono{font-family:var(--mono);font-size:12.5px;white-space:nowrap}
 
   <nav id="tabs">
     <button data-tab="radar" class="on">Radar</button>
+    <button data-tab="carte" class="newtab">Carte du monde</button>
+    <button data-tab="explorer" class="newtab">Explorer</button>
+    <button data-tab="vogue" class="newtab">Tendances en vogue</button>
     <button data-tab="actus">Actus <span class="n" id="n-actus">0</span></button>
     <button data-tab="signaux">Signaux faibles <span class="n" id="n-signaux">0</span></button>
-    <button data-tab="tendances">Tendances</button>
+    <button data-tab="tendances">Tendances hebdo</button>
     <button data-tab="favoris">Favoris <span class="n" id="n-fav">0</span></button>
   </nav>
 
+  <!-- Barre de filtres partagée par Carte / Explorer / Tendances en vogue -->
+  <div id="fbar" class="collapsed" hidden>
+    <div class="fb-row">
+      <div class="seg" id="f-period" role="group" aria-label="Période">
+        <button data-p="24h">1 jour</button><button data-p="7d">7 j</button><button data-p="30d">30 j</button><button data-p="3m">3 mois</button>
+        <button data-p="6m">6 mois</button><button data-p="1y" class="on">1 an</button><button data-p="5y">5 ans</button><button data-p="all">Tout</button><button data-p="custom">Dates…</button>
+      </div>
+      <span id="f-dates" hidden><input type="date" id="f-from" aria-label="Du"> <input type="date" id="f-to" aria-label="Au"></span>
+      <select id="g-continent" aria-label="Continent"><option value="">Tous continents</option></select>
+      <select id="g-country" aria-label="Pays"><option value="">Tous pays</option></select>
+      <select id="g-sector" aria-label="Secteur"><option value="">Tous secteurs</option></select>
+      <select id="g-theme" aria-label="Tendance"><option value="">Toutes tendances</option></select>
+      <select id="g-stage" aria-label="Étape"><option value="">Toutes étapes</option></select>
+    </div>
+    <div class="fb-row">
+      <div class="range" title="Fourchette de montant (glisse les deux poignées)">
+        <span class="fb-label">Montant</span>
+        <div class="dual"><div class="rail"></div><div class="sel" id="amt-sel"></div>
+          <input type="range" id="amt-min" min="0" max="1000" value="0" aria-label="Montant minimum">
+          <input type="range" id="amt-max" min="0" max="1000" value="1000" aria-label="Montant maximum"></div>
+        <output id="amt-out">Tous montants</output>
+      </div>
+      <div class="seg" id="amt-quick"><button data-r="0,1">&lt; 1 M€</button><button data-r="1,10">1–10 M€</button><button data-r="10,100">10–100 M€</button><button data-r="100,">100 M€ +</button></div>
+      <input type="search" id="g-q" placeholder="Startup, fonds, mot-clé…" style="max-width:240px">
+      <label class="toggle"><input type="checkbox" id="k-round" checked> Levées</label>
+      <label class="toggle"><input type="checkbox" id="k-fund"> Fonds VC</label>
+      <label class="toggle"><input type="checkbox" id="k-exit"> Rachats &amp; IPO</label>
+      <label class="toggle" title="Dépôts officiels SEC non repris par la presse"><input type="checkbox" id="k-off" checked> Dépôts SEC</label>
+    </div>
+    <div class="fb-row active-filters" id="f-active"></div>
+  </div>
+
+  <main id="views">
   <!-- RADAR -->
   <section id="radar">
     <div class="grid kpis">
@@ -150,6 +323,57 @@ td.mono{font-family:var(--mono);font-size:12.5px;white-space:nowrap}
     </div>
   </section>
 
+  <!-- CARTE -->
+  <section id="carte" hidden>
+    <div class="grid two">
+      <div class="card map-wrap">
+        <div class="card-head">
+          <div class="continents" id="continents"></div>
+          <div class="seg" id="map-metric"><button data-m="amount" class="on">Montant</button><button data-m="count">Nombre</button><button data-m="growth">Croissance</button></div>
+        </div>
+        <div id="map"><div class="empty">Chargement de la carte…</div></div>
+        <div class="legend-grad" id="map-legend"></div>
+      </div>
+      <div class="card"><h2 id="rank-title">Classement des pays</h2><p class="hint" id="rank-hint">Clique sur un pays pour ouvrir sa fiche.</p><div class="hbars" id="rank"></div></div>
+    </div>
+    <div id="scope"></div>
+  </section>
+
+  <!-- EXPLORER -->
+  <section id="explorer" hidden>
+    <div class="grid kpis five" id="x-kpis"></div>
+    <div class="card" style="margin-top:16px">
+      <div class="card-head"><div><h2>Évolution des levées</h2><p class="hint">Glisse sur le graphique pour zoomer sur une période. Clique sur un secteur de la légende pour le filtrer.</p></div>
+        <div class="seg" id="x-metric"><button data-m="amount" class="on">Montant</button><button data-m="count">Nombre</button></div></div>
+      <div class="chart" id="x-time"></div><div class="legend" id="x-time-legend"></div>
+    </div>
+    <div class="grid two-even" style="margin-top:16px">
+      <div class="card"><h2>Ce qui accélère : secteurs</h2><p class="hint" id="x-grow-hint">Période choisie comparée à la période précédente de même durée.</p><div id="x-grow-sec"></div></div>
+      <div class="card"><h2>Ce qui accélère : pays</h2><p class="hint">Mêmes règles, par pays (au moins 3 levées).</p><div id="x-grow-cc"></div></div>
+    </div>
+    <div class="grid two-even" style="margin-top:16px">
+      <div class="card"><h2>Taille des tickets</h2><p class="hint">Clique sur une barre pour cibler cette fourchette de montant.</p><div class="chart" id="x-hist"></div></div>
+      <div class="card"><h2>Par étape</h2><p class="hint">Nombre de levées et ticket médian. Clique pour filtrer.</p><div id="x-stages"></div></div>
+    </div>
+    <div class="card" style="margin-top:16px">
+      <div class="card-head"><div><h2>Toutes les levées</h2><p class="hint" id="x-table-hint"></p></div><button class="btn small" id="x-csv">Exporter en CSV</button></div>
+      <div class="scroll"><table class="data" id="x-table"></table></div>
+      <div class="pager" id="x-pager"></div>
+    </div>
+  </section>
+
+  <!-- TENDANCES EN VOGUE -->
+  <section id="vogue" hidden>
+    <div id="vogue-detail"></div>
+    <div id="vogue-home">
+      <div class="card">
+        <div class="card-head"><div><h2>La matrice des tendances</h2><p class="hint" id="v-hint">À droite : ce qui accélère. En haut : ce qui attire le plus d'argent. Taille : nombre de levées. Clique sur une bulle.</p></div></div>
+        <div class="chart" id="v-matrix"></div>
+      </div>
+      <div class="themes" id="v-cards" style="margin-top:16px"></div>
+    </div>
+  </section>
+
   <!-- ACTUS -->
   <section id="actus" hidden>
     <div class="filters">
@@ -165,7 +389,7 @@ td.mono{font-family:var(--mono);font-size:12.5px;white-space:nowrap}
   <!-- SIGNAUX -->
   <section id="signaux" hidden>
     <div class="card" style="margin-bottom:16px">
-      <h2>Modifications de capital publiées au BODACC</h2>
+      <h2>Modifications de capital publiées au BODACC (France)</h2>
       <p class="hint">Une société qui modifie son capital vient souvent de faire entrer des investisseurs. C'est un indice, pas une preuve : vérifie avant de conclure. Seules les sociétés sont listées, jamais les particuliers.</p>
       <div class="filters" style="margin:0">
         <input type="search" id="sq" placeholder="Nom, ville, activité…">
@@ -175,10 +399,16 @@ td.mono{font-family:var(--mono);font-size:12.5px;white-space:nowrap}
       </div>
     </div>
     <div class="card scroll"><table><thead><tr><th>Date</th><th>Société</th><th>Lieu</th><th>Capital</th><th>Activité</th><th></th></tr></thead><tbody id="sig-body"></tbody></table><div id="sig-empty" class="empty" hidden>Aucun signal avec ces filtres.</div></div>
+    <div class="card scroll" style="margin-top:16px">
+      <h2>Levées privées déclarées à la SEC (États-Unis)</h2>
+      <p class="hint">Les startups américaines déclarent leurs levées via le « Form D ». Souvent visible avant l'annonce officielle. Fonds d'investissement, immobilier et pétrole exclus.</p>
+      <table><thead><tr><th>Date</th><th>Société</th><th>Lieu</th><th>Déjà levé</th><th>Objectif</th><th></th></tr></thead><tbody id="sec-body"></tbody></table>
+      <div id="sec-empty" class="empty" hidden>Aucune déclaration récupérée pour l'instant.</div>
+    </div>
     <div class="card" style="margin-top:16px"><h2>Lancements produits</h2><p class="hint">Les derniers produits mis en avant sur Product Hunt.</p><ul class="list" id="launches"></ul></div>
   </section>
 
-  <!-- TENDANCES -->
+  <!-- TENDANCES HEBDO -->
   <section id="tendances" hidden>
     <div class="grid two">
       <div class="card"><h2>Secteurs qui bougent</h2><p class="hint">Articles des 7 derniers jours. Le trait orange marque la semaine précédente.</p><div id="sectors"></div></div>
@@ -191,188 +421,20 @@ td.mono{font-family:var(--mono);font-size:12.5px;white-space:nowrap}
 
   <!-- FAVORIS -->
   <section id="favoris" hidden>
-    <p class="hint" style="color:var(--muted)">Clique sur l'étoile d'un article pour le garder ici. Tes favoris restent dans ce navigateur.</p>
+    <div class="card" style="margin-bottom:16px"><h2>Levées suivies</h2><p class="hint">Ajoute une levée avec l'étoile de sa fiche.</p><div id="fav-deals" class="toplist"></div></div>
+    <p class="hint" style="color:var(--muted)">Articles : clique sur l'étoile d'un article pour le garder ici. Tes favoris restent dans ce navigateur.</p>
     <div class="feed" id="fav-feed"></div>
   </section>
+  </main>
 
   <div class="sources" id="sources"></div>
 </div>
 
-<script>
-const $ = s => document.querySelector(s);
-const store = {
-  get(k, d){ try { const v = localStorage.getItem(k); return v === null ? d : JSON.parse(v); } catch { return d; } },
-  set(k, v){ try { localStorage.setItem(k, JSON.stringify(v)); } catch {} }
-};
-const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-const DAY = 864e5, now = Date.now();
-const daysAgo = d => (now - new Date(d).getTime()) / DAY;
-const fmtDate = d => new Date(d).toLocaleDateString("fr-FR", {day:"numeric", month:"short"});
-const fmtEur = m => m >= 1000 ? (m/1000).toFixed(1).replace(".", ",") + " Md€" : Math.round(m).toLocaleString("fr-FR") + " M€";
-const pct = (a, b) => b ? Math.round((a - b) / b * 100) : null;
-const delta = (a, b, label) => { const p = pct(a, b); if (p === null) return ""; return `<span class="${p >= 0 ? "up" : "down"}">${p >= 0 ? "▲" : "▼"} ${Math.abs(p)} %</span> vs ${label}`; };
+<div id="tip" role="tooltip"></div>
+<dialog id="deal"><div class="dlg-in" id="deal-in"></div></dialog>
 
-/* Thème */
-const applyTheme = t => { if (t) document.documentElement.dataset.theme = t; else delete document.documentElement.dataset.theme; };
-applyTheme(store.get("theme", null));
-$("#theme").onclick = () => {
-  const dark = document.documentElement.dataset.theme ? document.documentElement.dataset.theme === "dark" : matchMedia("(prefers-color-scheme: dark)").matches;
-  const t = dark ? "light" : "dark"; store.set("theme", t); applyTheme(t);
-};
-
-/* Onglets */
-document.querySelectorAll("#tabs button").forEach(b => b.onclick = () => {
-  document.querySelectorAll("#tabs button").forEach(x => x.classList.toggle("on", x === b));
-  document.querySelectorAll("section").forEach(s => s.hidden = s.id !== b.dataset.tab);
-  if (b.dataset.tab === "favoris") renderFav();
-});
-
-let D = {articles: [], signals: [], launches: [], sources: []};
-const lastVisit = store.get("lastVisit", 0);
-let favs = new Set(store.get("favs", []));
-
-fetch("data/radar.json?" + Date.now()).then(r => r.ok ? r.json() : Promise.reject(r.status))
-  .then(d => { D = d; init(); store.set("lastVisit", now); })
-  .catch(() => { $("#updated").textContent = "Pas encore de données : lance le workflow dans l'onglet Actions de GitHub."; init(); });
-
-function init(){
-  if (D.updated) $("#updated").textContent = "Mis à jour le " + new Date(D.updated).toLocaleString("fr-FR", {dateStyle:"medium", timeStyle:"short"});
-  $("#n-actus").textContent = D.articles.length;
-  $("#n-signaux").textContent = D.signals.length;
-  $("#n-fav").textContent = favs.size;
-  const sectors = [...new Set(D.articles.flatMap(a => a.sectors))].sort();
-  $("#f-sector").innerHTML += sectors.map(s => `<option>${esc(s)}</option>`).join("");
-  const rounds = [...new Set(D.articles.map(a => a.round).filter(Boolean))].sort();
-  $("#f-round").innerHTML += rounds.map(s => `<option>${esc(s)}</option>`).join("");
-  const depts = [...new Set(D.signals.map(s => s.dept).filter(Boolean))].sort();
-  $("#s-dept").innerHTML += depts.map(s => `<option>${esc(s)}</option>`).join("");
-  D.signals.sort((a, b) => b.date.localeCompare(a.date) || (b.press ? 1 : 0) - (a.press ? 1 : 0));
-  renderRadar(); renderFeed(); renderSignals(); renderTrends(); renderSources();
-}
-
-/* ---------- Radar ---------- */
-function renderRadar(){
-  const deals = D.articles.filter(a => a.deal);
-  const w1 = deals.filter(a => daysAgo(a.date) <= 7), w0 = deals.filter(a => daysAgo(a.date) > 7 && daysAgo(a.date) <= 14);
-  const sum = arr => arr.reduce((s, a) => s + (a.amount ? a.amount.eur_m : 0), 0);
-  $("#k-deals").textContent = w1.length;
-  $("#k-deals-d").innerHTML = delta(w1.length, w0.length, "sem. préc.");
-  $("#k-amount").textContent = fmtEur(sum(w1));
-  $("#k-amount-d").innerHTML = delta(sum(w1), sum(w0), "sem. préc.");
-  const s1 = D.signals.filter(s => daysAgo(s.date) <= 7);
-  $("#k-signals").textContent = s1.length;
-  $("#k-signals-d").textContent = s1.filter(s => s.tech).length + " au profil tech";
-
-  // Thermomètre : volume de deals vs moyenne hebdo de l'historique
-  const weeks = Math.max(1, Math.min(6, Math.ceil(Math.max(...D.articles.map(a => daysAgo(a.date)), 7) / 7)));
-  const avg = deals.length / weeks || 1;
-  const ratio = Math.max(0, Math.min(2, w1.length / avg));
-  const label = ratio > 1.3 ? "Brûlant" : ratio > 1.05 ? "Chaud" : ratio > 0.8 ? "Normal" : ratio > 0.5 ? "Frais" : "Glacial";
-  $("#k-temp").textContent = deals.length ? label : "–";
-  $("#k-temp-b").style.left = (ratio / 2 * 100) + "%";
-  $("#k-temp-d").textContent = deals.length ? `Activité à ${Math.round(ratio * 100)} % de la moyenne` : "";
-
-  const top = w1.filter(a => a.amount).sort((a, b) => b.amount.eur_m - a.amount.eur_m).slice(0, 8);
-  $("#top-deals").innerHTML = top.length ? top.map((a, i) => `
-    <div class="deal"><div class="rank">${String(i + 1).padStart(2, "0")}</div>
-      <div><a class="t" href="${esc(a.link)}" target="_blank" rel="noopener">${esc(a.title)}</a>
-        <div>${a.round ? `<span class="tag round">${esc(a.round)}</span>` : ""}${a.sectors.slice(0, 2).map(s => `<span class="tag">${esc(s)}</span>`).join("")}<span class="tag">${esc(a.source)}</span></div></div>
-      <div class="amt">${esc(a.amount.label)}</div></div>`).join("") : `<div class="empty">Aucune levée chiffrée cette semaine pour l'instant.</div>`;
-
-  const inv = {};
-  deals.filter(a => daysAgo(a.date) <= 30).forEach(a => a.investors.forEach(i => inv[i] = (inv[i] || 0) + 1));
-  const invTop = Object.entries(inv).sort((a, b) => b[1] - a[1]).slice(0, 8);
-  const maxI = invTop[0]?.[1] || 1;
-  $("#top-inv").innerHTML = invTop.length ? invTop.map(([n, c]) => bar(n, c, maxI)).join("") : `<div class="empty">Aucun fonds repéré.</div>`;
-
-  const conf = D.signals.filter(s => s.press).slice(0, 6);
-  $("#confirmed").innerHTML = conf.length ? conf.map(s => `
-    <div class="deal" style="grid-template-columns:1fr"><div><a class="t" href="${esc(s.press.link)}" target="_blank" rel="noopener">${esc(s.name)}</a>
-    <div class="meta">${esc(s.city)} · capital modifié le ${fmtDate(s.date)}</div></div></div>`).join("")
-    : `<div class="empty" style="padding:16px">Pas de recoupement presse / BODACC pour l'instant.</div>`;
-}
-
-function bar(label, v, max, prev){
-  return `<div class="bar"><div>${esc(label)}</div><div class="track"><div class="fill" style="width:${v / max * 100}%"></div>${prev != null ? `<div class="prev" style="width:${Math.min(100, prev / max * 100)}%"></div>` : ""}</div><div class="num">${v}${prev != null ? ` <span>(${prev})</span>` : ""}</div></div>`;
-}
-
-/* ---------- Actus ---------- */
-let onlyDeals = false;
-["#q", "#f-zone", "#f-sector", "#f-round"].forEach(s => $(s).addEventListener("input", renderFeed));
-$("#f-deals").onclick = e => { onlyDeals = !onlyDeals; e.target.classList.toggle("on", onlyDeals); renderFeed(); };
-
-function artHTML(a){
-  const isNew = new Date(a.date).getTime() > lastVisit && lastVisit > 0;
-  return `<article class="art ${a.deal ? "isdeal" : ""}">
-    <div><h3><a href="${esc(a.link)}" target="_blank" rel="noopener">${esc(a.title)}</a></h3>
-      <div class="meta">${isNew ? `<span class="tag new">Nouveau</span>` : ""}${esc(a.source)} · ${esc(a.zone)} · ${fmtDate(a.date)}</div></div>
-    <div class="row">${a.amount ? `<span class="amt">${esc(a.amount.label)}</span>` : ""}<button class="star ${favs.has(a.id) ? "on" : ""}" data-id="${a.id}" aria-label="Favori">★</button></div>
-    ${a.summary ? `<p>${esc(a.summary)}</p>` : ""}
-    <div style="grid-column:1/-1">${a.round ? `<span class="tag round">${esc(a.round)}</span>` : ""}${a.investors.map(i => `<span class="tag inv">${esc(i)}</span>`).join("")}${a.sectors.map(s => `<span class="tag">${esc(s)}</span>`).join("")}</div>
-  </article>`;
-}
-function bindStars(root){
-  root.querySelectorAll(".star").forEach(b => b.onclick = () => {
-    const id = b.dataset.id; favs.has(id) ? favs.delete(id) : favs.add(id);
-    store.set("favs", [...favs]); b.classList.toggle("on"); $("#n-fav").textContent = favs.size;
-  });
-}
-function renderFeed(){
-  const q = $("#q").value.trim().toLowerCase(), z = $("#f-zone").value, s = $("#f-sector").value, r = $("#f-round").value;
-  const list = D.articles.filter(a =>
-    (!q || (a.title + " " + a.summary + " " + a.investors.join(" ")).toLowerCase().includes(q)) &&
-    (!z || a.zone === z) && (!s || a.sectors.includes(s)) && (!r || a.round === r) && (!onlyDeals || a.deal));
-  $("#feed").innerHTML = list.length ? list.slice(0, 200).map(artHTML).join("") : `<div class="empty">Aucun article ne correspond.</div>`;
-  bindStars($("#feed"));
-}
-function renderFav(){
-  const list = D.articles.filter(a => favs.has(a.id));
-  $("#fav-feed").innerHTML = list.length ? list.map(artHTML).join("") : `<div class="empty">Pas encore de favoris.</div>`;
-  bindStars($("#fav-feed"));
-}
-
-/* ---------- Signaux ---------- */
-let sTech = true, sSas = true;
-$("#sq").addEventListener("input", renderSignals); $("#s-dept").addEventListener("input", renderSignals);
-$("#s-tech").onclick = e => { sTech = !sTech; e.target.classList.toggle("on", sTech); renderSignals(); };
-$("#s-sas").onclick = e => { sSas = !sSas; e.target.classList.toggle("on", sSas); renderSignals(); };
-function renderSignals(){
-  const q = $("#sq").value.trim().toLowerCase(), dp = $("#s-dept").value;
-  const list = D.signals.filter(s => (!sTech || s.tech) && (!sSas || s.sas) && (!dp || s.dept === dp) &&
-    (!q || (s.name + " " + s.city + " " + s.activity).toLowerCase().includes(q)));
-  $("#sig-body").innerHTML = list.slice(0, 300).map(s => `<tr>
-    <td class="mono">${fmtDate(s.date)}</td>
-    <td><strong>${esc(s.name)}</strong><div class="meta">${esc(s.form)}</div>
-      ${s.tech ? `<span class="pill tech">tech</span> ` : ""}${s.press ? `<a class="pill press" href="${esc(s.press.link)}" target="_blank" rel="noopener">vu dans la presse</a>` : ""}</td>
-    <td>${esc(s.city)}${s.dept ? ` <span class="meta">(${esc(s.dept)})</span>` : ""}</td>
-    <td class="mono">${s.capital ? Math.round(s.capital).toLocaleString("fr-FR") + " €" : "–"}</td>
-    <td class="meta">${esc(s.activity || "–")}</td>
-    <td>${s.url ? `<a href="${esc(s.url)}" target="_blank" rel="noopener" class="meta">Annonce</a>` : ""}${s.siren ? `<br><a href="https://annuaire-entreprises.data.gouv.fr/entreprise/${esc(s.siren)}" target="_blank" rel="noopener" class="meta">Fiche</a>` : ""}</td>
-  </tr>`).join("");
-  $("#sig-empty").hidden = list.length > 0;
-  $("#launches").innerHTML = (D.launches || []).slice(0, 12).map(l => `<li><a href="${esc(l.link)}" target="_blank" rel="noopener"><strong>${esc(l.title)}</strong></a> <span class="meta">${esc(l.summary)}</span></li>`).join("") || `<li class="meta">Aucun lancement récupéré.</li>`;
-}
-
-/* ---------- Tendances ---------- */
-function renderTrends(){
-  const cnt = (from, to) => { const c = {}; D.articles.filter(a => daysAgo(a.date) > from && daysAgo(a.date) <= to).forEach(a => a.sectors.forEach(s => c[s] = (c[s] || 0) + 1)); return c; };
-  const now7 = cnt(-1, 7), prev7 = cnt(7, 14);
-  const rows = Object.keys({...now7, ...prev7}).map(k => [k, now7[k] || 0, prev7[k] || 0]).sort((a, b) => b[1] - a[1]);
-  const max = Math.max(1, ...rows.map(r => Math.max(r[1], r[2])));
-  $("#sectors").innerHTML = rows.length ? rows.map(([k, v, p]) => bar(k, v, max, p)).join("") : `<div class="empty">Pas assez de données.</div>`;
-
-  const days = [...Array(14)].map((_, i) => D.articles.filter(a => a.deal && Math.floor(daysAgo(a.date)) === 13 - i).length);
-  const mx = Math.max(1, ...days);
-  $("#spark").innerHTML = days.map((v, i) => `<span class="${i === 13 ? "today" : ""}" style="height:${v / mx * 100}%" title="${v} levée(s)"></span>`).join("");
-
-  const rc = {}; D.articles.filter(a => a.deal && a.round && daysAgo(a.date) <= 30).forEach(a => rc[a.round] = (rc[a.round] || 0) + 1);
-  const rr = Object.entries(rc).sort((a, b) => b[1] - a[1]); const rm = rr[0]?.[1] || 1;
-  $("#rounds").innerHTML = rr.length ? rr.map(([k, v]) => bar(k, v, rm)).join("") : `<div class="empty">Pas assez de données.</div>`;
-}
-
-function renderSources(){
-  $("#sources").innerHTML = "Sources : " + (D.sources || []).map(s => `<span class="src ${s.ok ? "" : "ko"}" title="${esc(s.error || s.count + " éléments")}"><i></i>${esc(s.name)}</span>`).join("");
-}
-</script>
+<script src="assets/d3.min.js"></script>
+<script src="assets/app.js"></script>
+<script src="assets/explorer.js"></script>
 </body>
 </html>

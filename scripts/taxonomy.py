@@ -1,0 +1,271 @@
+"""
+Radar VC — dictionnaires de classification.
+
+C'est ici que tu personnalises le radar :
+  - COUNTRIES : pays reconnus, leur continent et les mots qui permettent de les détecter
+  - SECTORS   : grands secteurs (onglets, filtres)
+  - THEMES    : tendances fines (page « Tendances en vogue »)
+  - STAGES    : étapes de levée
+  - INVESTORS : fonds repérés dans les articles
+  - FX_TO_EUR : taux de change approximatifs (servent à comparer les montants)
+"""
+
+CONTINENTS = ["Europe", "Amérique du Nord", "Amérique latine", "Asie", "Moyen-Orient", "Afrique", "Océanie"]
+
+# iso2: (nom FR, code numérique ISO (carte), continent, [mots-clés de détection])
+# Les mots en MAJUSCULES courts (US, UK, UAE...) sont détectés en respectant la casse.
+COUNTRIES = {
+    # --- Europe
+    "FR": ("France", 250, "Europe", ["France", "French", "français", "française", "françaises", "Paris", "Lyon", "Marseille",
+                                      "Toulouse", "Bordeaux", "Nantes", "Lille", "Grenoble", "Montpellier", "Rennes", "Strasbourg", "Sophia Antipolis", "French Tech", "parisienne", "parisien", "lyonnaise", "lyonnais", "francesa", "francés", "bordelaise", "nantaise", "lilloise", "toulousaine"]),
+    "DE": ("Allemagne", 276, "Europe", ["Germany", "German", "Allemagne", "allemand", "allemande", "Deutschland", "deutsche", "deutsches", "alemana", "alemán", "Berliner", "Münchner", "tedesca",
+                                         "Berlin", "Munich", "München", "Hamburg", "Hambourg", "Frankfurt", "Francfort", "Cologne", "Köln", "Stuttgart", "Düsseldorf"]),
+    "GB": ("Royaume-Uni", 826, "Europe", ["UK", "U.K.", "United Kingdom", "Britain", "British", "Royaume-Uni", "britannique", "England", "English",
+                                           "London", "Londres", "Manchester", "Edinburgh", "Cambridge", "Oxford", "Bristol", "Scotland", "Scottish", "Wales", "Welsh", "Belfast"]),
+    "ES": ("Espagne", 724, "Europe", ["Spain", "Spanish", "Espagne", "espagnol", "espagnole", "España", "española", "español", "Madrid", "Barcelona", "Barcelone", "Valencia", "Málaga", "Bilbao"]),
+    "IT": ("Italie", 380, "Europe", ["Italy", "Italian", "Italie", "italien", "italienne", "Italia", "italiana", "italiano", "Milan", "Milano", "Rome", "Roma", "Turin", "Torino"]),
+    "NL": ("Pays-Bas", 528, "Europe", ["Netherlands", "Dutch", "Pays-Bas", "néerlandais", "néerlandaise", "Amsterdam", "Rotterdam", "Utrecht", "Eindhoven", "The Hague", "Delft"]),
+    "BE": ("Belgique", 56, "Europe", ["Belgium", "Belgian", "Belgique", "belge", "Brussels", "Bruxelles", "Antwerp", "Anvers", "Ghent", "Gand", "Leuven", "Louvain", "Liège"]),
+    "LU": ("Luxembourg", 442, "Europe", ["Luxembourg", "luxembourgeois", "luxembourgeoise", "Luxembourgish"]),
+    "CH": ("Suisse", 756, "Europe", ["Switzerland", "Swiss", "Suisse", "suisses", "Zurich", "Zürich", "Geneva", "Genève", "Lausanne", "Basel", "Bâle", "Bern", "Berne", "Zug"]),
+    "AT": ("Autriche", 40, "Europe", ["Austria", "Austrian", "Autriche", "autrichien", "autrichienne", "Österreich", "Vienna", "Vienne", "Wien", "Graz", "Linz"]),
+    "IE": ("Irlande", 372, "Europe", ["Ireland", "Irish", "Irlande", "irlandais", "irlandaise", "Dublin", "Cork", "Galway"]),
+    "PT": ("Portugal", 620, "Europe", ["Portugal", "Portuguese", "portugais", "portugaise", "Lisbon", "Lisbonne", "Lisboa", "Porto"]),
+    "SE": ("Suède", 752, "Europe", ["Sweden", "Swedish", "Suède", "suédois", "suédoise", "Stockholm", "Gothenburg", "Malmö"]),
+    "NO": ("Norvège", 578, "Europe", ["Norway", "Norwegian", "Norvège", "norvégien", "norvégienne", "Oslo", "Bergen", "Trondheim"]),
+    "DK": ("Danemark", 208, "Europe", ["Denmark", "Danish", "Danemark", "danois", "danoise", "Copenhagen", "Copenhague", "Aarhus"]),
+    "FI": ("Finlande", 246, "Europe", ["Finland", "Finnish", "Finlande", "finlandais", "finlandaise", "Helsinki", "Espoo", "Tampere", "Oulu"]),
+    "IS": ("Islande", 352, "Europe", ["Iceland", "Icelandic", "Islande", "Reykjavik"]),
+    "EE": ("Estonie", 233, "Europe", ["Estonia", "Estonian", "Estonie", "estonien", "estonienne", "Tallinn", "Tartu"]),
+    "LV": ("Lettonie", 428, "Europe", ["Latvia", "Latvian", "Lettonie", "Riga"]),
+    "LT": ("Lituanie", 440, "Europe", ["Lithuania", "Lithuanian", "Lituanie", "lituanien", "Vilnius", "Kaunas"]),
+    "PL": ("Pologne", 616, "Europe", ["Poland", "Polish", "Pologne", "polonais", "polonaise", "Warsaw", "Varsovie", "Kraków", "Krakow", "Wrocław", "Gdańsk"]),
+    "CZ": ("Tchéquie", 203, "Europe", ["Czech", "Czechia", "Tchéquie", "tchèque", "Prague", "Brno"]),
+    "SK": ("Slovaquie", 703, "Europe", ["Slovakia", "Slovak", "Slovaquie", "Bratislava"]),
+    "HU": ("Hongrie", 348, "Europe", ["Hungary", "Hungarian", "Hongrie", "hongrois", "Budapest"]),
+    "RO": ("Roumanie", 642, "Europe", ["Romania", "Romanian", "Roumanie", "roumain", "roumaine", "Bucharest", "Bucarest", "Cluj"]),
+    "BG": ("Bulgarie", 100, "Europe", ["Bulgaria", "Bulgarian", "Bulgarie", "Sofia"]),
+    "GR": ("Grèce", 300, "Europe", ["Greece", "Greek", "Grèce", "grec", "grecque", "Athens", "Athènes", "Thessaloniki"]),
+    "HR": ("Croatie", 191, "Europe", ["Croatia", "Croatian", "Croatie", "Zagreb"]),
+    "SI": ("Slovénie", 705, "Europe", ["Slovenia", "Slovenian", "Slovénie", "Ljubljana"]),
+    "RS": ("Serbie", 688, "Europe", ["Serbia", "Serbian", "Serbie", "Belgrade"]),
+    "UA": ("Ukraine", 804, "Europe", ["Ukraine", "Ukrainian", "ukrainien", "ukrainienne", "Kyiv", "Kiev", "Lviv", "Kharkiv"]),
+    "CY": ("Chypre", 196, "Europe", ["Cyprus", "Cypriot", "Chypre", "Limassol", "Nicosia"]),
+    "MT": ("Malte", 470, "Europe", ["Malta", "Maltese", "Malte"]),
+    "TR": ("Turquie", 792, "Europe", ["Turkey", "Türkiye", "Turkish", "Turquie", "turc", "turque", "Istanbul", "Ankara", "Izmir"]),
+    # --- Amérique du Nord
+    "US": ("États-Unis", 840, "Amérique du Nord", ["US", "U.S.", "USA", "United States", "American", "américain", "américaine", "américains", "États-Unis", "Etats-Unis",
+                                                    "Silicon Valley", "San Francisco", "Bay Area", "Palo Alto", "Mountain View", "New York", "NYC", "Boston", "Austin",
+                                                    "Seattle", "Los Angeles", "Miami", "Chicago", "Denver", "Atlanta", "Dallas", "Houston", "San Diego", "Pittsburgh",
+                                                    "Washington, D.C.", "Philadelphia", "Salt Lake City", "Nashville", "Delaware", "California", "Californie", "Texas", "Colorado"]),
+    "CA": ("Canada", 124, "Amérique du Nord", ["Canada", "Canadian", "canadien", "canadienne", "Toronto", "Montreal", "Montréal", "Vancouver", "Ottawa", "Calgary", "Waterloo", "Québec", "Quebec"]),
+    # --- Amérique latine
+    "MX": ("Mexique", 484, "Amérique latine", ["Mexico", "Mexican", "Mexique", "mexicain", "mexicaine", "México", "mexicana", "mexicano", "Mexico City", "Guadalajara", "Monterrey", "CDMX"]),
+    "BR": ("Brésil", 76, "Amérique latine", ["Brazil", "Brazilian", "Brésil", "brésilien", "brésilienne", "Brasil", "brasileira", "brasileiro", "São Paulo", "Sao Paulo", "Rio de Janeiro", "Belo Horizonte", "Florianópolis", "Curitiba"]),
+    "AR": ("Argentine", 32, "Amérique latine", ["Argentina", "Argentine", "Argentinian", "argentin", "argentina", "argentino", "Buenos Aires", "Córdoba"]),
+    "CL": ("Chili", 152, "Amérique latine", ["Chile", "Chilean", "Chili", "chilien", "chilena", "chileno", "Santiago"]),
+    "CO": ("Colombie", 170, "Amérique latine", ["Colombia", "Colombian", "Colombie", "colombien", "colombiana", "colombiano", "Bogotá", "Bogota", "Medellín", "Medellin"]),
+    "PE": ("Pérou", 604, "Amérique latine", ["Peru", "Peruvian", "Pérou", "péruvien", "peruana", "peruano", "Lima"]),
+    "UY": ("Uruguay", 858, "Amérique latine", ["Uruguay", "Uruguayan", "uruguayen", "uruguaya", "uruguayo", "Montevideo"]),
+    "EC": ("Équateur", 218, "Amérique latine", ["Ecuador", "Ecuadorian", "Équateur", "Quito", "Guayaquil"]),
+    "CR": ("Costa Rica", 188, "Amérique latine", ["Costa Rica", "Costa Rican", "San José"]),
+    "GT": ("Guatemala", 320, "Amérique latine", ["Guatemala", "Guatemalan"]),
+    "PA": ("Panama", 591, "Amérique latine", ["Panama", "Panamanian", "Panamá"]),
+    "VE": ("Venezuela", 862, "Amérique latine", ["Venezuela", "Venezuelan", "Caracas"]),
+    "DO": ("Rép. dominicaine", 214, "Amérique latine", ["Dominican Republic", "Santo Domingo"]),
+    "PY": ("Paraguay", 600, "Amérique latine", ["Paraguay", "Paraguayan", "Asunción"]),
+    "BO": ("Bolivie", 68, "Amérique latine", ["Bolivia", "Bolivian", "Bolivie"]),
+    # --- Asie
+    "CN": ("Chine", 156, "Asie", ["China", "Chinese", "Chine", "chinois", "chinoise", "Beijing", "Pékin", "Shanghai", "Shenzhen", "Hangzhou", "Guangzhou", "Suzhou", "Chengdu", "Wuhan", "Nanjing"]),
+    "HK": ("Hong Kong", 344, "Asie", ["Hong Kong", "Hongkong"]),
+    "TW": ("Taïwan", 158, "Asie", ["Taiwan", "Taiwanese", "Taïwan", "taïwanais", "Taipei", "Hsinchu"]),
+    "JP": ("Japon", 392, "Asie", ["Japan", "Japanese", "Japon", "japonais", "japonaise", "Tokyo", "Osaka", "Kyoto", "Fukuoka", "Nagoya", "日本", "東京"]),
+    "KR": ("Corée du Sud", 410, "Asie", ["South Korea", "Korea", "Korean", "Corée", "coréen", "coréenne", "Seoul", "Séoul", "Busan", "Pangyo", "한국", "서울"]),
+    "IN": ("Inde", 356, "Asie", ["India", "Indian", "Inde", "indien", "indienne", "Bengaluru", "Bangalore", "Mumbai", "Delhi", "New Delhi", "Gurugram", "Gurgaon", "Noida",
+                                  "Hyderabad", "Chennai", "Pune", "Kolkata", "Ahmedabad", "Jaipur", "Kochi"]),
+    "SG": ("Singapour", 702, "Asie", ["Singapore", "Singaporean", "Singapour", "singapourien", "singapourienne"]),
+    "ID": ("Indonésie", 360, "Asie", ["Indonesia", "Indonesian", "Indonésie", "indonésien", "Jakarta", "Bandung", "Surabaya", "Bali"]),
+    "VN": ("Vietnam", 704, "Asie", ["Vietnam", "Vietnamese", "Viêt Nam", "vietnamien", "Hanoi", "Ho Chi Minh", "Saigon"]),
+    "TH": ("Thaïlande", 764, "Asie", ["Thailand", "Thai", "Thaïlande", "thaïlandais", "Bangkok"]),
+    "MY": ("Malaisie", 458, "Asie", ["Malaysia", "Malaysian", "Malaisie", "malaisien", "Kuala Lumpur", "Penang"]),
+    "PH": ("Philippines", 608, "Asie", ["Philippines", "Philippine", "Filipino", "philippin", "Manila", "Manille", "Cebu"]),
+    "PK": ("Pakistan", 586, "Asie", ["Pakistan", "Pakistani", "pakistanais", "Karachi", "Lahore", "Islamabad"]),
+    "BD": ("Bangladesh", 50, "Asie", ["Bangladesh", "Bangladeshi", "Dhaka"]),
+    "LK": ("Sri Lanka", 144, "Asie", ["Sri Lanka", "Sri Lankan", "Colombo"]),
+    "NP": ("Népal", 524, "Asie", ["Nepal", "Nepali", "Nepalese", "Kathmandu"]),
+    "KZ": ("Kazakhstan", 398, "Asie", ["Kazakhstan", "Kazakh", "Almaty", "Astana"]),
+    "UZ": ("Ouzbékistan", 860, "Asie", ["Uzbekistan", "Uzbek", "Tashkent"]),
+    # --- Moyen-Orient
+    "IL": ("Israël", 376, "Moyen-Orient", ["Israel", "Israeli", "Israël", "israélien", "israélienne", "Tel Aviv", "Tel-Aviv", "Jerusalem", "Jérusalem", "Haifa", "Herzliya"]),
+    "AE": ("Émirats arabes unis", 784, "Moyen-Orient", ["UAE", "U.A.E.", "United Arab Emirates", "Emirati", "Émirats", "émirati", "Dubai", "Dubaï", "Abu Dhabi", "Sharjah"]),
+    "SA": ("Arabie saoudite", 682, "Moyen-Orient", ["Saudi", "Saudi Arabia", "Saudi Arabian", "Arabie saoudite", "saoudien", "saoudienne", "Riyadh", "Riyad", "Jeddah", "KSA"]),
+    "QA": ("Qatar", 634, "Moyen-Orient", ["Qatar", "Qatari", "qatari", "Doha"]),
+    "KW": ("Koweït", 414, "Moyen-Orient", ["Kuwait", "Kuwaiti", "Koweït"]),
+    "BH": ("Bahreïn", 48, "Moyen-Orient", ["Bahrain", "Bahraini", "Bahreïn", "Manama"]),
+    "OM": ("Oman", 512, "Moyen-Orient", ["Oman", "Omani", "Muscat"]),
+    "JO": ("Jordanie", 400, "Moyen-Orient", ["Jordanian", "Jordanie", "Amman"]),
+    "LB": ("Liban", 422, "Moyen-Orient", ["Lebanon", "Lebanese", "Liban", "libanais", "Beirut", "Beyrouth"]),
+    "IQ": ("Irak", 368, "Moyen-Orient", ["Iraq", "Iraqi", "Irak", "Baghdad", "Erbil"]),
+    # --- Afrique
+    "NG": ("Nigeria", 566, "Afrique", ["Nigeria", "Nigerian", "nigérian", "nigériane", "Lagos", "Abuja"]),
+    "KE": ("Kenya", 404, "Afrique", ["Kenya", "Kenyan", "kényan", "kényane", "Nairobi", "Mombasa"]),
+    "ZA": ("Afrique du Sud", 710, "Afrique", ["South Africa", "South African", "Afrique du Sud", "sud-africain", "sud-africaine", "Cape Town", "Le Cap", "Johannesburg", "Durban", "Pretoria"]),
+    "EG": ("Égypte", 818, "Afrique", ["Egypt", "Egyptian", "Égypte", "égyptien", "égyptienne", "Cairo", "Le Caire", "Alexandria"]),
+    "MA": ("Maroc", 504, "Afrique", ["Morocco", "Moroccan", "Maroc", "marocain", "marocaine", "Casablanca", "Rabat", "Marrakech", "Tangier", "Tanger"]),
+    "TN": ("Tunisie", 788, "Afrique", ["Tunisia", "Tunisian", "Tunisie", "tunisien", "tunisienne", "Tunis"]),
+    "DZ": ("Algérie", 12, "Afrique", ["Algeria", "Algerian", "Algérie", "algérien", "algérienne", "Algiers", "Alger"]),
+    "GH": ("Ghana", 288, "Afrique", ["Ghana", "Ghanaian", "ghanéen", "Accra"]),
+    "SN": ("Sénégal", 686, "Afrique", ["Senegal", "Senegalese", "Sénégal", "sénégalais", "sénégalaise", "Dakar"]),
+    "CI": ("Côte d'Ivoire", 384, "Afrique", ["Ivory Coast", "Côte d'Ivoire", "Ivorian", "ivoirien", "ivoirienne", "Abidjan"]),
+    "RW": ("Rwanda", 646, "Afrique", ["Rwanda", "Rwandan", "rwandais", "Kigali"]),
+    "UG": ("Ouganda", 800, "Afrique", ["Uganda", "Ugandan", "Ouganda", "Kampala"]),
+    "TZ": ("Tanzanie", 834, "Afrique", ["Tanzania", "Tanzanian", "Tanzanie", "Dar es Salaam"]),
+    "ET": ("Éthiopie", 231, "Afrique", ["Ethiopia", "Ethiopian", "Éthiopie", "Addis Ababa"]),
+    "CM": ("Cameroun", 120, "Afrique", ["Cameroon", "Cameroonian", "Cameroun", "camerounais", "Douala", "Yaoundé"]),
+    "BJ": ("Bénin", 204, "Afrique", ["Benin", "Beninese", "Bénin", "béninois", "Cotonou"]),
+    "TG": ("Togo", 768, "Afrique", ["Togolese", "togolais", "Lomé"]),
+    "ZM": ("Zambie", 894, "Afrique", ["Zambia", "Zambian", "Zambie", "Lusaka"]),
+    "ZW": ("Zimbabwe", 716, "Afrique", ["Zimbabwe", "Zimbabwean", "Harare"]),
+    "MZ": ("Mozambique", 508, "Afrique", ["Mozambique", "Mozambican", "Maputo"]),
+    "AO": ("Angola", 24, "Afrique", ["Angola", "Angolan", "Luanda"]),
+    "MU": ("Maurice", 480, "Afrique", ["Mauritius", "Mauritian", "île Maurice", "mauricien"]),
+    "BW": ("Botswana", 72, "Afrique", ["Botswana", "Gaborone"]),
+    "CD": ("RD Congo", 180, "Afrique", ["DRC", "DR Congo", "Democratic Republic of the Congo", "Kinshasa"]),
+    "MG": ("Madagascar", 450, "Afrique", ["Madagascar", "Malagasy", "malgache", "Antananarivo"]),
+    # --- Océanie
+    "AU": ("Australie", 36, "Océanie", ["Australia", "Australian", "Australie", "australien", "australienne", "Sydney", "Melbourne", "Brisbane", "Perth", "Adelaide", "Canberra", "Aussie"]),
+    "NZ": ("Nouvelle-Zélande", 554, "Océanie", ["New Zealand", "New Zealander", "Nouvelle-Zélande", "néo-zélandais", "Kiwi", "Auckland", "Wellington", "Christchurch"]),
+}
+
+# ---------------------------------------------------------------------------
+SECTORS = {
+    "IA": ["ia", "intelligence artificielle", "ai", "a.i.", "artificial intelligence", "llm", "llms", "genai", "generative", "générative",
+           "machine learning", "agentic", "agents ia", "ai agent", "ai agents", "künstliche intelligenz", "ki", "inteligencia artificial", "intelligenza artificiale"],
+    "Fintech": ["fintech", "paiement", "paiements", "payment", "payments", "banque", "banking", "néobanque", "neobank", "crypto", "blockchain", "web3",
+                "stablecoin", "assurance", "insurtech", "insurance", "lending", "crédit", "credit", "wealthtech", "regtech", "accounting", "comptabilité"],
+    "Climat & énergie": ["climat", "climate", "climatetech", "climate tech", "énergie", "energy", "solaire", "solar", "hydrogène", "hydrogen", "carbone", "carbon",
+                         "batterie", "batteries", "battery", "greentech", "cleantech", "décarbonation", "décarboner", "décarboniser", "recyclage", "recycling",
+                         "renewable", "renouvelable", "renouvelables", "nuclear", "nucléaire", "fusion", "geothermal", "heat pump", "wind"],
+    "Santé & bio": ["santé", "health", "healthtech", "healthcare", "medtech", "biotech", "biotechnology", "medical", "médical", "médicale", "pharma", "therapeutics",
+                    "thérapie", "therapy", "therapies", "patients", "clinique", "clinical", "drug", "diagnostics", "genomics", "mental health"],
+    "SaaS B2B": ["saas", "b2b", "logiciel", "software", "devtools", "developer", "developers", "no-code", "low-code", "erp", "crm", "workflow", "api", "enterprise"],
+    "Cybersécurité": ["cyber", "cybersécurité", "cybersecurity", "security", "sécurité informatique", "identity", "zero trust"],
+    "Défense & spatial": ["défense", "defense", "defence", "spatial", "space", "satellite", "satellites", "drone", "drones", "dual-use", "military", "aerospace", "aérospatial"],
+    "Deeptech": ["deeptech", "deep tech", "quantique", "quantum", "semiconducteur", "semiconducteurs", "semiconductor", "semiconductors", "puce", "puces", "chip", "chips",
+                 "robotique", "robotics", "robot", "robots", "humanoid", "photonique", "photonics", "materials", "matériaux", "lidar"],
+    "Mobilité": ["mobilité", "mobility", "véhicule", "vehicle", "vehicles", "ev", "evs", "electric vehicle", "logistique", "logistics", "transport", "autonomous driving",
+                 "freight", "fleet", "supply chain"],
+    "Commerce & conso": ["e-commerce", "ecommerce", "retail", "marketplace", "d2c", "dtc", "consumer", "marque", "brand", "fashion", "mode", "beauty", "beauté"],
+    "Food & agri": ["foodtech", "agritech", "agtech", "alimentation", "food", "agriculture", "restauration", "restaurant", "grocery", "farming"],
+    "RH & éducation": ["rh", "hr", "hrtech", "recrutement", "recruiting", "hiring", "talent", "payroll", "edtech", "formation", "éducation", "education", "learning"],
+    "Immobilier": ["proptech", "immobilier", "real estate", "construction", "bâtiment", "contech", "housing"],
+    "Industrie": ["manufacturing", "industrie", "industrial", "industriel", "industrielle", "usine", "factory", "factories"],
+    "Médias & loisirs": ["gaming", "game", "games", "jeux vidéo", "jeu vidéo", "media", "médias", "music", "musique", "creator", "creators", "sport", "sports", "travel", "voyage"],
+    "Tech": [],  # catégorie fourre-tout utilisée pour les dépôts officiels (SEC)
+}
+
+# Tendances fines (page « Tendances en vogue »)
+THEMES = {
+    "IA générative": ["generative ai", "genai", "gen ai", "llm", "llms", "foundation model", "foundation models", "large language model", "ia générative", "ia generative",
+                      "text-to-video", "text-to-image", "ai video", "chatbot"],
+    "Agents IA": ["ai agent", "ai agents", "agentic", "agent ia", "agents ia", "autonomous agents", "ai employee", "ai employees", "ai worker", "copilot", "copilots"],
+    "Infra IA & puces": ["gpu", "gpus", "ai infrastructure", "inference", "data center", "data centers", "datacenter", "datacenters", "ai chip", "ai chips",
+                         "semiconductor", "semiconductors", "semiconducteur", "semiconducteurs", "compute", "neocloud"],
+    "IA verticale": ["ai-powered", "ai-native", "ai-first", "ai platform", "ai-driven", "propulsé par l'ia", "plateforme d'ia", "plateforme ia", "basée sur l'ia"],
+    "Robotique & humanoïdes": ["robot", "robots", "robotics", "robotique", "humanoid", "humanoids", "humanoïde", "humanoïdes", "physical ai", "autonomous systems"],
+    "Quantique": ["quantum", "quantique", "qubit", "qubits"],
+    "Défense & dual-use": ["defense", "defence", "défense", "dual-use", "military", "militaire", "drone", "drones", "counter-drone", "national security"],
+    "Spatial": ["space", "spatial", "satellite", "satellites", "orbit", "orbital", "launch vehicle", "rocket", "rockets", "lunar", "space tech", "spacetech"],
+    "Climat & énergie": ["climate", "climat", "climatetech", "climate tech", "solar", "solaire", "wind", "éolien", "renewable", "renouvelable", "carbon capture",
+                         "decarbonization", "décarbonation", "hydrogen", "hydrogène", "heat pump", "grid"],
+    "Batteries & stockage": ["battery", "batteries", "batterie", "energy storage", "stockage d'énergie", "sodium-ion", "lithium", "solid-state"],
+    "Nucléaire & fusion": ["nuclear", "nucléaire", "fusion", "smr", "small modular reactor", "fission"],
+    "Biotech & pharma": ["biotech", "biotechnology", "therapeutics", "drug discovery", "pharma", "biopharma", "gene therapy", "cell therapy", "antibody", "oncology", "rna"],
+    "Medtech & santé numérique": ["medtech", "healthtech", "digital health", "medical device", "medical devices", "dispositif médical", "telehealth", "télémédecine",
+                                  "mental health", "santé mentale", "diagnostics", "e-santé"],
+    "Fintech & paiements": ["fintech", "payments", "payment", "paiement", "paiements", "neobank", "néobanque", "banking", "lending", "wealthtech", "embedded finance", "regtech"],
+    "Crypto & Web3": ["crypto", "blockchain", "web3", "stablecoin", "stablecoins", "defi", "bitcoin", "ethereum", "tokenization", "tokenisation", "rwa"],
+    "Cybersécurité": ["cybersecurity", "cybersécurité", "cyber", "security", "zero trust", "identity security", "threat"],
+    "Mobilité & VE": ["electric vehicle", "electric vehicles", "ev", "evs", "véhicule électrique", "mobility", "mobilité", "autonomous driving", "self-driving", "charging"],
+    "Logistique & supply chain": ["logistics", "logistique", "supply chain", "freight", "warehouse", "last-mile", "fret", "shipping"],
+    "Foodtech & agritech": ["foodtech", "agritech", "agtech", "alternative protein", "food", "farming", "agriculture", "vertical farming"],
+    "Edtech": ["edtech", "education", "éducation", "learning", "upskilling", "tutoring"],
+    "RH & futur du travail": ["hrtech", "hr tech", "recruiting", "recrutement", "payroll", "talent", "workforce", "future of work"],
+    "Proptech & construction": ["proptech", "real estate", "immobilier", "construction", "contech", "bâtiment", "housing"],
+    "Legaltech": ["legaltech", "legal tech", "legal ai", "law firms", "juridique", "compliance"],
+    "Insurtech": ["insurtech", "insurance", "assurance"],
+    "Gaming & médias": ["gaming", "game studio", "games", "jeux vidéo", "jeu vidéo", "esports", "creator economy", "streaming"],
+    "E-commerce & retail": ["e-commerce", "ecommerce", "retail", "marketplace", "d2c", "social commerce", "quick commerce"],
+    "Industrie 4.0": ["manufacturing", "industrial", "industrie", "factory", "industry 4.0", "industrie 4.0", "predictive maintenance"],
+}
+
+# Étapes : (nom, regex). L'ordre compte : le plus spécifique d'abord.
+STAGES = [
+    ("Fonds VC", r"\b(new|first|second|third|fourth|debut|inaugural|maiden|latest) (venture )?fund\b|\bfund (i|ii|iii|iv|v|vi|vii|1|2|3|4|5)\b|"
+                 r"lève un (nouveau )?fonds|nouveau fonds|premier fonds|closes? (its |a )?\S* ?fund\b|fund close|neuen fonds|nuevo fondo"),
+    ("Pre-seed", r"pre[- ]?seed|pré[- ]?amorçage|pre[- ]?semilla|pré[- ]?seed"),
+    ("Seed", r"pre[- ]series[ -]a|\bseed\b|amorçage|semilla|semente|\bsaatfinanzierung"),
+    ("Série A", r"s[ée]ries?[ -]a(?![a-z])|serie[ -]a(?![a-z])|série a(?![a-z])|a[- ]round|series a"),
+    ("Série B", r"s[ée]ries?[ -]b(?![a-z])|serie[ -]b(?![a-z])|b[- ]round"),
+    ("Série C", r"s[ée]ries?[ -]c(?![a-z])|serie[ -]c(?![a-z])"),
+    ("Série D+", r"s[ée]ries?[ -][d-k](?![a-z])|serie[ -][d-k](?![a-z])"),
+    ("Croissance", r"growth (round|equity|funding|capital|investment)|late[- ]stage|tour de croissance|pre-ipo|ronda de crecimiento|growth-stage"),
+    ("Dette", r"\bdebt\b|\bdette\b|venture debt|credit facility|ligne de crédit|\bloan\b|prêt|deuda|fremdkapital"),
+    ("Subvention", r"\bgrant\b|subvention|\bsbir\b|eic accelerator|horizon europe"),
+    ("M&A", r"\bacqui(res?|red|sition)\b|\brach[eè]t|\brachat\b|\bm&a\b|\bmerger\b|\bfusion avec\b|übernimmt|adquiere|adquisición"),
+    ("IPO", r"\bipo\b|introduction en bourse|entrée en bourse|goes public|public listing|\bspac\b|börsengang|salida a bolsa"),
+]
+
+INVESTORS = {
+    # Europe / France
+    "Bpifrance": ["Bpifrance", "BPI France"], "Partech": ["Partech"], "Eurazeo": ["Eurazeo", "Idinvest"], "Elaia": ["Elaia"],
+    "Kima Ventures": ["Kima Ventures", "Kima"], "Serena": ["Serena Capital", "Serena"], "Alven": ["Alven"], "Daphni": ["Daphni"], "Frst": ["Frst"],
+    "ISAI": ["ISAI"], "Breega": ["Breega"], "XAnge": ["XAnge"], "Ventech": ["Ventech"], "Newfund": ["Newfund"], "Seventure": ["Seventure"],
+    "Truffle Capital": ["Truffle Capital"], "Iris": ["Iris Capital"], "Red River West": ["Red River West"], "Headline": ["Headline"],
+    "Singular": ["Singular"], "Founders Future": ["Founders Future"], "Axeleo": ["Axeleo"], "Cathay Innovation": ["Cathay Innovation"],
+    "Jolt Capital": ["Jolt Capital"], "Supernova Invest": ["Supernova Invest"], "Sofinnova": ["Sofinnova"], "Otium": ["Otium Capital", "Otium"],
+    "Balderton": ["Balderton"], "Index Ventures": ["Index Ventures"], "Atomico": ["Atomico"], "Northzone": ["Northzone"], "Creandum": ["Creandum"],
+    "EQT Ventures": ["EQT Ventures", "EQT"], "LocalGlobe": ["LocalGlobe"], "Seedcamp": ["Seedcamp"], "Octopus Ventures": ["Octopus Ventures"],
+    "Molten Ventures": ["Molten Ventures"], "MMC Ventures": ["MMC Ventures"], "Hoxton Ventures": ["Hoxton"], "Notion Capital": ["Notion Capital"],
+    "Dawn Capital": ["Dawn Capital"], "Felix Capital": ["Felix Capital"], "Kibo Ventures": ["Kibo"], "Speedinvest": ["Speedinvest"],
+    "HV Capital": ["HV Capital"], "Lakestar": ["Lakestar"], "Earlybird": ["Earlybird"], "Cherry Ventures": ["Cherry Ventures"], "Project A": ["Project A"],
+    "Point Nine": ["Point Nine"], "Picus Capital": ["Picus"], "La Famiglia": ["La Famiglia"], "Visionaries Club": ["Visionaries Club"],
+    "Plural": ["Plural"], "Blossom Capital": ["Blossom Capital"], "Target Global": ["Target Global"], "Heartcore": ["Heartcore"],
+    "Inventure": ["Inventure"], "Lifeline Ventures": ["Lifeline Ventures"], "Maki.vc": ["Maki.vc"], "Nauta": ["Nauta"], "Seaya": ["Seaya"],
+    "Kfund": ["Kfund"], "United Ventures": ["United Ventures"], "P101": ["P101"], "CDP Venture Capital": ["CDP Venture"], "byFounders": ["byFounders"],
+    "Mangrove": ["Mangrove Capital"], "General Catalyst": ["General Catalyst"], "EIC Fund": ["EIC Fund", "European Innovation Council"],
+    # Amérique du Nord
+    "Sequoia": ["Sequoia"], "a16z": ["a16z", "Andreessen Horowitz", "Andreessen"], "Accel": ["Accel"], "Lightspeed": ["Lightspeed"],
+    "Tiger Global": ["Tiger Global"], "SoftBank": ["SoftBank", "Vision Fund"], "Insight Partners": ["Insight Partners"], "Founders Fund": ["Founders Fund"],
+    "Kleiner Perkins": ["Kleiner Perkins"], "Benchmark": ["Benchmark"], "Greylock": ["Greylock"], "GV": ["GV", "Google Ventures"], "Khosla": ["Khosla"],
+    "Thrive Capital": ["Thrive Capital"], "Coatue": ["Coatue"], "Bessemer": ["Bessemer"], "Battery Ventures": ["Battery Ventures"], "NEA": ["NEA", "New Enterprise Associates"],
+    "IVP": ["IVP"], "ICONIQ": ["ICONIQ"], "Lux Capital": ["Lux Capital"], "8VC": ["8VC"], "Y Combinator": ["Y Combinator", "YC"], "Techstars": ["Techstars"],
+    "500 Global": ["500 Global", "500 Startups"], "Greenoaks": ["Greenoaks"], "Redpoint": ["Redpoint"], "Spark Capital": ["Spark Capital"],
+    "First Round": ["First Round Capital"], "Union Square Ventures": ["Union Square Ventures", "USV"], "QED Investors": ["QED Investors", "QED"],
+    "Ribbit Capital": ["Ribbit"], "DST Global": ["DST Global"], "Salesforce Ventures": ["Salesforce Ventures"], "NVentures (Nvidia)": ["NVentures", "Nvidia"],
+    "Intel Capital": ["Intel Capital"], "M12 (Microsoft)": ["M12"], "Breakthrough Energy": ["Breakthrough Energy"], "Lowercarbon": ["Lowercarbon"],
+    "Inovia": ["Inovia"], "OMERS Ventures": ["OMERS Ventures"], "Real Ventures": ["Real Ventures"], "BDC Capital": ["BDC Capital"],
+    # Asie / Moyen-Orient / Afrique / LatAm / Océanie
+    "Peak XV": ["Peak XV", "Sequoia India"], "Elevation Capital": ["Elevation Capital"], "Blume Ventures": ["Blume"], "Nexus VP": ["Nexus Venture"],
+    "Accel India": ["Accel India"], "Antler": ["Antler"], "Vertex": ["Vertex Ventures", "Vertex Holdings"], "East Ventures": ["East Ventures"],
+    "Alpha JWC": ["Alpha JWC"], "Openspace": ["Openspace"], "Temasek": ["Temasek"], "GIC": ["GIC"], "Tencent": ["Tencent"], "Alibaba": ["Alibaba"],
+    "HongShan": ["HongShan"], "Hillhouse": ["Hillhouse"], "Qiming": ["Qiming"], "Pitango": ["Pitango"], "Aleph": ["Aleph"], "Viola": ["Viola Ventures", "Viola"],
+    "TLV Partners": ["TLV Partners"], "Prosus": ["Prosus", "Naspers"], "STV": ["STV"], "Global Ventures": ["Global Ventures"], "Raed Ventures": ["Raed Ventures"],
+    "Wamda": ["Wamda"], "Sanabil": ["Sanabil"], "Mubadala": ["Mubadala"], "Shorooq": ["Shorooq"], "BECO Capital": ["BECO"], "Flat6Labs": ["Flat6Labs"],
+    "Partech Africa": ["Partech Africa"], "TLcom": ["TLcom"], "4DX Ventures": ["4DX"], "Norrsken22": ["Norrsken22", "Norrsken"], "Ventures Platform": ["Ventures Platform"],
+    "Kaszek": ["Kaszek"], "monashees": ["monashees"], "SoftBank LatAm": ["SoftBank Latin America"], "Valor Capital": ["Valor Capital"], "Canary": ["Canary"],
+    "Square Peg": ["Square Peg"], "Blackbird": ["Blackbird"], "AirTree": ["AirTree"], "Main Sequence": ["Main Sequence"],
+}
+
+# Taux approximatifs (1 unité = X euros). Servent uniquement à comparer les montants.
+FX_TO_EUR = {
+    "EUR": 1.0, "USD": 0.92, "GBP": 1.17, "CHF": 1.05, "INR": 0.011, "JPY": 0.0062, "CNY": 0.128, "KRW": 0.00067, "BRL": 0.17,
+    "CAD": 0.67, "AUD": 0.61, "NZD": 0.56, "SGD": 0.69, "HKD": 0.118, "SEK": 0.087, "NOK": 0.086, "DKK": 0.134, "PLN": 0.23,
+    "ILS": 0.25, "AED": 0.25, "SAR": 0.245, "ZAR": 0.051, "NGN": 0.0006, "KES": 0.0071, "EGP": 0.019, "MXN": 0.05, "TRY": 0.027, "IDR": 0.000057,
+}
+CURRENCY_HINT = {"INR": "IN", "JPY": "JP", "KRW": "KR", "BRL": "BR", "CAD": "CA", "AUD": "AU", "NZD": "NZ", "SGD": "SG", "SEK": "SE", "NOK": "NO",
+                 "DKK": "DK", "PLN": "PL", "ILS": "IL", "AED": "AE", "SAR": "SA", "ZAR": "ZA", "NGN": "NG", "KES": "KE", "EGP": "EG", "MXN": "MX",
+                 "TRY": "TR", "IDR": "ID", "CNY": "CN", "HKD": "HK", "CHF": "CH", "GBP": "GB"}
+
+TECH_ACTIVITY = (r"logiciel|informatique|numérique|digital|plateforme|application|données|data|intelligence artificielle|algorithm|saas|internet|"
+                 r"cloud|biotech|recherche et développement|r&d|électronique|robot|cyber|fintech|édition de logiciels|programmation|innovation")
