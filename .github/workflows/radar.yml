@@ -19,6 +19,7 @@ concurrency:
 jobs:
   update:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
@@ -32,15 +33,23 @@ jobs:
       - name: Installer les dépendances
         run: pip install feedparser requests
 
+      - name: Récupérer le fond de carte (une seule fois)
+        run: |
+          mkdir -p data
+          [ -s data/world-110m.json ] || curl -sfL https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json -o data/world-110m.json || true
+
       - name: Collecter les actus et signaux
+        env:
+          SEC_CONTACT: ${{ vars.SEC_CONTACT }}
         run: python scripts/fetch.py
 
       - name: Sauvegarder les données
         run: |
           git config user.name "radar-bot"
           git config user.email "radar-bot@users.noreply.github.com"
-          git add data/radar.json
+          git add data/
           git diff --staged --quiet || git commit -m "Radar : mise à jour $(date -u +'%Y-%m-%d %H:%M')"
+          git pull --rebase -X theirs || true
           git push
 
       - uses: actions/configure-pages@v5
@@ -49,3 +58,4 @@ jobs:
           path: "."
       - id: deployment
         uses: actions/deploy-pages@v4
+
